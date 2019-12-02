@@ -4,7 +4,6 @@ import pigpio as gpio
 from pin_utils import GPIO_to_BCM, PWM_PINS__BCM
 from time import sleep
 
-
 debug_mode = False
 
 
@@ -17,7 +16,8 @@ class Servo(object):
         if use_GPIB_index:
             self.pin_num = GPIO_to_BCM[self.pin_num]
         if self.pin_num not in PWM_PINS__BCM:
-            raise Exception('Specified pin number {} (GPIO) -- {} (BCM) is not a PWM output pin'.format(pin_num, self.pin_num))
+            raise Exception('Specified pin number {} (GPIO) -- {} (BCM) is not a PWM output pin'.format(
+                pin_num, self.pin_num))
 
         with open(servo_conf_path) as f:
             json_string = f.read()
@@ -30,22 +30,26 @@ class Servo(object):
 
         travel_lag_numerator__seconds = conf['travel_lag_numerator__seconds']
         travel_lag_denominator__degrees = conf['travel_lag_denominator__degrees']
-        self.angular_travel_time__seconds_per_degree = float(travel_lag_numerator__seconds) / travel_lag_denominator__degrees
+        self.angular_travel_time__seconds_per_degree = float(
+            travel_lag_numerator__seconds) / travel_lag_denominator__degrees
         self.current_position = None
 
         print('Initializing servo on pin {}'.format(self.pin_num))
         print('Loaded the followng config: \n{}'.format(conf))
-        print('Angular speed: {}s/deg ({}s / 90deg)'.format(self.angular_travel_time__seconds_per_degree, 90 * self.angular_travel_time__seconds_per_degree))
+        print('Angular speed: {}s/deg ({}s / 90deg)'.format(self.angular_travel_time__seconds_per_degree,
+                                                            90 * self.angular_travel_time__seconds_per_degree))
         print('Moving to start position')
         self.reset_position()
 
     def __repr__(self):
-        info_dict =  {'Servo Model': self.model,
-                      'PWM Min Width (us)': self.PWM_min_us,
-                      'PWM Max Width (us)': self.PWM_max_us,
-                      'Servo Max Travel (deg)': self.max_travel_degrees,
-                      'Servo Speed (deg/s)': 1.0 / self.angular_travel_time__seconds_per_degree,
-                      'Current Position': self.current_position}
+        info_dict = {
+            'Servo Model': self.model,
+            'PWM Min Width (us)': self.PWM_min_us,
+            'PWM Max Width (us)': self.PWM_max_us,
+            'Servo Max Travel (deg)': self.max_travel_degrees,
+            'Servo Speed (deg/s)': 1.0 / self.angular_travel_time__seconds_per_degree,
+            'Current Position': self.current_position
+        }
         nice_string = json.dumps(info_dict, indent=4)
         return nice_string
 
@@ -75,10 +79,18 @@ class Servo(object):
     def move_to_position(self, degrees):
         sig_width = self._degrees_to_duty_cycle_us(degrees)
         if not self.PWM_min_us <= sig_width <= self.PWM_max_us:
-            raise Exception('Error: position {} degrees is outside the range of the servo. It corresponds to a duty cycle time width of {}us, while this servo supports between {}us and {}us.'.format(degrees, sig_width, self.PWM_min_us, self.PWM_max_us))
+            raise Exception(
+                'Error: position {} degrees is outside the range of the servo. It corresponds to a duty cycle time width of {}us, while this servo supports between {}us and {}us.'
+                .format(degrees, sig_width, self.PWM_min_us, self.PWM_max_us))
 
         expected_travel_time = self._get_travel_time_to(degrees)
-        print('Moving position: {}{}->{}{} (PWM duty cycle at {}us). Travel time expectation: {}s'.format(self._format_plus(self.current_position), self.current_position, self._format_plus(degrees), degrees, sig_width, expected_travel_time))
+        print('Moving position: {}{}->{}{} (PWM duty cycle at {}us). Travel time expectation: {}s'.format(
+            self._format_plus(self.current_position),
+            self.current_position,
+            self._format_plus(degrees),
+            degrees,
+            sig_width,
+            expected_travel_time))
         if not self.debug_mode:
             # do move
             self.io.set_servo_pulsewidth(self.pin_num, sig_width)
@@ -89,4 +101,3 @@ class Servo(object):
 
     def reset_position(self):
         self.move_to_position(0)
-
