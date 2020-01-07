@@ -80,7 +80,8 @@ class Servo(object):
         sig_width = self._degrees_to_duty_cycle_us(degrees)
         if not self.PWM_min_us <= sig_width <= self.PWM_max_us:
             raise Exception(
-                'Error: position {} degrees is outside the range of the servo. It corresponds to a duty cycle time width of {}us, while this servo supports between {}us and {}us.'
+                'Error: position {} degrees is outside the range of the servo. It corresponds to a duty '
+                'cycle time width of {}us, while this servo supports between {}us and {}us.'
                 .format(degrees, sig_width, self.PWM_min_us, self.PWM_max_us))
 
         expected_travel_time = self._get_travel_time_to(degrees)
@@ -101,3 +102,4 @@ class Servo(object):
 
     def reset_position(self):
         self.move_to_position(0)
+
