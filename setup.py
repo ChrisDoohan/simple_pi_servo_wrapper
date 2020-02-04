@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='simple_pi_servo_wrapper',
-      version='0.1',
+      version='0.2',
       description='Convenience wrapper for pigpio',
       url='https://github.com/ChrisDoohan/simple_pi_servo_wrapper',
       author='Chris Doohan',
